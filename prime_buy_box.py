@@ -3,6 +3,14 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 from qreit.buy_boxes.buy_box import BuyBox
+from qreit.databases.postgres import *
+
+SFR_GENERATION_TABLE = 'sfr_millennial_median_2017'
+
+def pull_prime_zips():
+    pg = Postgres('brightforge', SFR_GENERATION_TABLE)
+    df = pg.pull_postgres_to_df('zip')
+    return df.zip
 
 def pull_model_zips(strat):
     engine = create_engine('postgresql+psycopg2://postgres:@localhost/brightforge')
@@ -48,7 +56,7 @@ class Prime_BuyBox(BuyBox):
             return False
 
     def _check_zip(self):
-        prime_zips_ls = list(pull_model_zips(self.strategy).index)
+        prime_zips_ls = list(pull_prime_zips(self.strategy).index)
         if self.zip_code in prime_zips_ls:
             return True
         else:
@@ -86,3 +94,6 @@ class Prime_BuyBox(BuyBox):
             return True
         else:
             return False
+
+if __name__=='__main__':
+    print(list(pull_prime_zips()))
